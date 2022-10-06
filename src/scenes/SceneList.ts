@@ -10,3 +10,4 @@ export enum SceneName {
 }
 
 export const sceneNames = Object.values(SceneName);
+

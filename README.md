@@ -57,4 +57,18 @@ The side drawer provides a list of our scenes which we can swap between by click
 To add your scene to the side drawer:
 
 - Add an entry into the `SceneName` enum to give your scene a name
-- In `AppState::selectScene`, add a case which inits your scene to `activeScene`
+- In `AppState::selectScene`, add a case to the switch which inits your scene to `activeScene`
+
+The drawer also has a few buttons to the side of it, which hide when the drawer is closed but can be hovered over to reveal them. They are:
+
+- Open/close toggle; opens/closes the drawer
+- Scene info button; opens the scene info dialog
+- Fullscreen button; enters fullscreen mode (press escape to exit)
+
+The Scene Info dialog is where you can write a few lines describing your scene and any commands/hotkeys it might have for other people viewing it.
+
+To create scene info:
+
+- Create a new React component file in your scene folder
+- Add content to your component - whatever you want to say about your scene
+- Open up `SceneInfoRenderer.tsx` and add a case that returns your scene info component

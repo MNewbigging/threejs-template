@@ -1,0 +1,40 @@
+.dialog {
+  position: fixed;
+  width: fit-content;
+  height: fit-content;
+  max-width: 80vw;
+  max-height: 80vh;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 500;
+  transition: all 0.2s ease-in-out;
+  background-color: white;
+  padding: 10px;
+
+  &.open {
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  &.closing {
+    transform: translate(-50%, -50%) scale(0);
+  }
+
+  .header {
+    font-size: 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .title {
+      font-size: 22px;
+    }
+
+    .close-button {
+      padding-right: 10px;
+      font-size: 22px;
+      cursor: pointer;
+    }
+  }
+}

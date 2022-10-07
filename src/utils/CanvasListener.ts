@@ -1,7 +1,6 @@
-export type ResizeCallback = () => void;
-
+export type ListenerCallback = () => void;
 export class CanvasListener {
-  private resizeListeners: ResizeCallback[] = [];
+  private canvasListeners: ListenerCallback[] = [];
   private _canvasWidth: number;
   private _canvasHeight: number;
 
@@ -20,20 +19,20 @@ export class CanvasListener {
     return this._canvasHeight;
   }
 
-  public onResize(callback: ResizeCallback) {
-    if (!this.resizeListeners.includes(callback)) {
-      this.resizeListeners.push(callback);
+  public onResize(callback: ListenerCallback) {
+    if (!this.canvasListeners.includes(callback)) {
+      this.canvasListeners.push(callback);
     }
   }
 
-  public removeCanvasListener(callback: ResizeCallback) {
-    this.resizeListeners = this.resizeListeners.filter((cb) => cb !== callback);
+  public removeCanvasListener(callback: ListenerCallback) {
+    this.canvasListeners = this.canvasListeners.filter((cb) => cb !== callback);
   }
 
   private onWindowResize = () => {
     this._canvasWidth = this.canvas.clientWidth;
     this._canvasHeight = this.canvas.clientHeight;
 
-    this.resizeListeners.forEach((cb) => cb());
+    this.canvasListeners.forEach((cb) => cb());
   };
 }

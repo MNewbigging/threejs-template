@@ -5,6 +5,7 @@ import { CanvasListener } from './utils/CanvasListener';
 import { Renderer } from './core/Renderer';
 import { BaseScene } from './scenes/BaseScene';
 import { SceneName } from './scenes/SceneList';
+import { DrawerState } from './components/drawer/DrawerState';
 import { BasicTransfoms } from './scenes/basic-transforms/BasicTransformsScene';
 import { BufferGeometryScene } from './scenes/buffer-geometry/BufferGeometryScene';
 import { BasicOrbitCamScene } from './scenes/basic-orbit-cam/BasicOrbitCamScene';
@@ -16,6 +17,7 @@ import { CannonPhysicsScene } from './scenes/cannon-physics/CannonPhysicsScene';
 
 export class AppState {
   public activeSceneName = SceneName.BASIC_TRANSFORMS;
+  public drawerState = new DrawerState();
 
   private canvasListener: CanvasListener;
   private renderer: Renderer;

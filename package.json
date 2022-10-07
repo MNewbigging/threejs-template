@@ -6,7 +6,7 @@
   "proxy": "http://localhost:8080",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --mode development --open --hot",
+    "start": "webpack-dev-server --mode development --open --hot",
     "build": "webpack --mode production ",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"

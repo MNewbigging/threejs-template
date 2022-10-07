@@ -1,21 +1,21 @@
-import { ResizeCallback } from './CanvasListener';
+import { ListenerCallback } from './CanvasListener';
 
 export class KeyboardListener {
   public pressedKeys = new Set<string>();
-  private pressListeners = new Map<string, ResizeCallback[]>();
+  private pressListeners = new Map<string, ListenerCallback[]>();
 
   constructor() {
     window.addEventListener('keydown', this.onKeyDown);
     window.addEventListener('keyup', this.onKeyUp);
   }
 
-  public addKeyPressListener(key: string, callback: ResizeCallback) {
+  public addKeyPressListener(key: string, callback: ListenerCallback) {
     const existing = this.pressListeners.get(key) ?? [];
     existing.push(callback);
     this.pressListeners.set(key, existing);
   }
 
-  public removeKeyPressListener(key: string, callback: ResizeCallback) {
+  public removeKeyPressListener(key: string, callback: ListenerCallback) {
     let existing = this.pressListeners.get(key) ?? [];
     existing = existing.filter((cb) => cb !== callback);
     this.pressListeners.set(key, existing);

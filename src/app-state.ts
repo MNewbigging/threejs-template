@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { action, makeAutoObservable, observable } from "mobx";
 
@@ -44,7 +45,15 @@ export class AppState {
     const boxGeom = new THREE.BoxGeometry();
     const boxMat = new THREE.MeshBasicMaterial({ color: "green" });
     const box = new THREE.Mesh(boxGeom, boxMat);
-    this.scene.add(box);
+    //this.scene.add(box);
+
+    const loader = new GLTFLoader();
+    loader.load("/chest.gltf", (gltf) => {
+      const chest = gltf.scene;
+      chest.position.set(0, 0, 0);
+      this.scene.add(chest);
+      this.controls?.target.set(0, 0, 0);
+    });
 
     this.update();
   }

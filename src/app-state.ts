@@ -47,8 +47,9 @@ export class AppState {
     const box = new THREE.Mesh(boxGeom, boxMat);
     //this.scene.add(box);
 
+    const url = new URL("/chest.gltf", import.meta.url).href;
     const loader = new GLTFLoader();
-    loader.load("/chest.gltf", (gltf) => {
+    loader.load(url, (gltf) => {
       const chest = gltf.scene;
       chest.position.set(0, 0, 0);
       this.scene.add(chest);

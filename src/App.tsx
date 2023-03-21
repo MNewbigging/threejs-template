@@ -30,7 +30,7 @@ export const App: React.FC<AppProps> = observer(({ appState }) => {
         <img src={planet00} className="logo" />
 
         <div className="planet-9 logo"></div>
-        <img src={planet08} className="logo" />
+        <img src={reactLogo} className="logo" />
       </div>
     </div>
   );

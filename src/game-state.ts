@@ -9,8 +9,6 @@ export class GameState {
   private controls: OrbitControls;
 
   constructor(private readonly canvas: HTMLCanvasElement) {
-    console.log("canvas", canvas);
-
     this.camera = new THREE.PerspectiveCamera(
       75,
       canvas.clientWidth / canvas.clientHeight,
@@ -28,23 +26,33 @@ export class GameState {
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
 
-    this.camera.position.z = 2;
+    this.camera.position.z = 1.6;
+    this.camera.position.y = 1.2;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 3);
     this.scene.add(ambientLight);
 
-    const boxGeom = new THREE.BoxGeometry();
-    const boxMat = new THREE.MeshBasicMaterial({ color: "green" });
-    const box = new THREE.Mesh(boxGeom, boxMat);
-    this.scene.add(box);
+    const directLight = new THREE.DirectionalLight();
+    this.scene.add(directLight);
 
-    const url = new URL("/chest.gltf", import.meta.url).href;
+    const url = new URL("/box-small.glb", import.meta.url).href;
     const loader = new GLTFLoader();
     loader.load(url, (gltf) => {
-      const chest = gltf.scene;
+      // Kenney's models need their metalness adjusting
+      gltf.scene.traverse((node) => {
+        if ((node as THREE.Mesh).isMesh) {
+          (
+            (node as THREE.Mesh).material as THREE.MeshStandardMaterial
+          ).metalness = 0;
 
-      chest.position.set(0, 0, 0);
-      this.scene.add(chest);
+          //
+          node.castShadow = true;
+          node.receiveShadow = true;
+        }
+      });
+
+      gltf.scene.rotateY(1);
+      this.scene.add(gltf.scene);
     });
 
     this.onCanvasResize();
@@ -52,7 +60,6 @@ export class GameState {
   }
 
   private onCanvasResize = () => {
-    console.log("oncanvasresize");
     this.renderer.setSize(
       this.canvas.clientWidth,
       this.canvas.clientHeight,

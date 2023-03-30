@@ -1,6 +1,4 @@
-import * as THREE from "three";
-
-import { GameState } from "./assets/game-state";
+import { GameState } from "./game-state";
 
 export class AppState {
   gameState?: GameState;

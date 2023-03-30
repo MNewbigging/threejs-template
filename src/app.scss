@@ -1,27 +1,10 @@
-.planets {
-  display: flex;
-
-  gap: 20px;
-}
-
-.planet-7 {
-  width: 100px;
-  height: 100px;
-  background-image: url("/planet07.png");
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-.planet-9 {
-  width: 100px;
-  height: 100px;
-  background-image: url("./assets/planet09.png");
-  background-size: contain;
-  background-repeat: no-repeat;
+.app {
+  width: 100%;
+  height: 100%;
 }
 
 #canvas {
-  width: 640;
-  height: 640;
-  border: 1px solid white;
+  width: 100%;
+  height: 100%;
+  outline: none;
 }

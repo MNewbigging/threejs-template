@@ -9,6 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blueprintjs/core": "^4.17.8",
+    "lil-gui": "^0.18.1",
     "mobx": "^6.8.0",
     "mobx-react-lite": "^3.4.3",
     "react": "^18.2.0",

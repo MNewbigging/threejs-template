@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { GameLoader } from "./loaders/game-loader";
@@ -28,7 +27,6 @@ export class GameState {
     // Setup renderer
     this.renderer = new THREE.WebGLRenderer({ canvas });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    THREE.ColorManagement.legacyMode = false;
     this.renderer.outputEncoding = THREE.sRGBEncoding;
     this.renderer.toneMapping = THREE.LinearToneMapping;
     this.renderer.toneMappingExposure = 1;
@@ -50,10 +48,13 @@ export class GameState {
 
     // Add box
     const box = this.gameLoader.modelLoader.get("box");
-    if (box) {
-      addGui(box, "box");
-      this.scene.add(box);
-    }
+    addGui(box, "box");
+    this.scene.add(box);
+
+    // Add bandit
+    const bandit = this.gameLoader.modelLoader.get("bandit");
+    bandit.position.z = -0.5;
+    this.scene.add(bandit);
 
     // Start game
     this.update();

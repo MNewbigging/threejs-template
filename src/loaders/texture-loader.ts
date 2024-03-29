@@ -1,33 +1,38 @@
 import * as THREE from "three";
 
 export class TextureLoader {
-  loading = false;
-  readonly textures = new Map<string, THREE.Texture>();
+  doneLoading = false;
 
+  private textures = new Map<string, THREE.Texture>();
   private loadingManager = new THREE.LoadingManager();
+
+  get(name: string) {
+    return this.textures.get(name);
+  }
 
   load(onLoad: () => void) {
     // Setup loading manager
-    this.loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
-      console.log(
-        `Loading texture: ${url}. \n Loaded ${itemsLoaded} of ${itemsTotal}`
-      );
-    };
+    this.loadingManager.onError = (url) => console.error("error loading", url);
 
     this.loadingManager.onLoad = () => {
-      this.loading = false;
+      this.doneLoading = true;
       onLoad();
     };
 
-    this.loading = true;
     this.loadTextures();
   }
 
   private loadTextures() {
     const loader = new THREE.TextureLoader(this.loadingManager);
+    this.loadBanditTexture(loader);
+  }
 
-    // Example
-    const textureUrl = new URL("/path/to/texture", import.meta.url).href;
-    //loader.load(textureUrl, (texture) => this.textures.set('name', texture));
+  private loadBanditTexture(loader: THREE.TextureLoader) {
+    const url = new URL("/bandit-texture.png", import.meta.url).href;
+    loader.load(url, (texture) => {
+      // So colours don't look washed out
+      texture.encoding = THREE.sRGBEncoding;
+      this.textures.set("bandit", texture);
+    });
   }
 }

@@ -6,7 +6,7 @@ export class AppState {
   gameState?: GameState;
 
   constructor() {
-    // Give canvas time to mount
+    // Give loading UI time to mount
     setTimeout(() => this.loadGame(), 10);
   }
 
@@ -15,12 +15,6 @@ export class AppState {
   }
 
   private startGame = () => {
-    const canvas = document.getElementById("canvas") as HTMLCanvasElement;
-    if (!canvas) {
-      console.error("could not find game canvas");
-      return;
-    }
-
-    this.gameState = new GameState(canvas, this.gameLoader);
+    this.gameState = new GameState(this.gameLoader);
   };
 }

@@ -10,10 +10,20 @@ export class GameState {
   private renderer: THREE.WebGLRenderer;
   private controls: OrbitControls;
 
-  constructor(
-    private canvas: HTMLCanvasElement,
-    private gameLoader: GameLoader
-  ) {
+  constructor(private gameLoader: GameLoader) {
+    // Setup renderer
+    this.renderer = new THREE.WebGLRenderer();
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.toneMapping = THREE.LinearToneMapping;
+    this.renderer.toneMappingExposure = 1;
+    this.renderer.shadowMap.enabled = true;
+
+    // Add canvas to dom
+    const canvas = this.renderer.domElement;
+    const canvasRoot = document.getElementById("canvas-root");
+    canvasRoot?.appendChild(canvas);
+
     // Setup camera
     this.camera = new THREE.PerspectiveCamera(
       75,
@@ -24,13 +34,7 @@ export class GameState {
     this.camera.position.z = 1.6;
     this.camera.position.y = 1.2;
 
-    // Setup renderer
-    this.renderer = new THREE.WebGLRenderer({ canvas });
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.toneMapping = THREE.LinearToneMapping;
-    this.renderer.toneMappingExposure = 1;
-    this.renderer.shadowMap.enabled = true;
+    // Handle any canvas resize events
     window.addEventListener("resize", this.onCanvasResize);
     this.onCanvasResize();
 
@@ -61,15 +65,13 @@ export class GameState {
   }
 
   private onCanvasResize = () => {
-    this.renderer.setSize(
-      this.canvas.clientWidth,
-      this.canvas.clientHeight,
-      false
-    );
+    const canvas = this.renderer.domElement;
+
+    this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
 
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    this.camera.aspect = this.canvas.clientWidth / this.canvas.clientHeight;
+    this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
 
     this.camera.updateProjectionMatrix();
   };

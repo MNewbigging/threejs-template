@@ -4,7 +4,7 @@ import React from "react";
 import { observer } from "mobx-react-lite";
 
 import { AppState } from "./app-state";
-import { LoadingScreen } from "./loading-screen/loading-screen";
+import { LoadingScreen } from "../loading-screen/loading-screen";
 
 interface AppProps {
   appState: AppState;
@@ -12,9 +12,7 @@ interface AppProps {
 
 export const App: React.FC<AppProps> = observer(({ appState }) => {
   return (
-    <div className="app">
-      <div id="canvas-root"></div>
-
+    <div id="canvas-root">
       {appState.gameLoader.loading && <LoadingScreen />}
     </div>
   );

@@ -1,5 +1,5 @@
-import { GameLoader } from "./loaders/game-loader";
-import { GameState } from "./game-state";
+import { GameLoader } from "../loaders/game-loader";
+import { GameState } from "../game/game-state";
 
 export class AppState {
   readonly gameLoader = new GameLoader();

@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import { GameLoader } from "./loaders/game-loader";
-import { addGui } from "./utils/utils";
+import { GameLoader } from "../loaders/game-loader";
+import { addGui } from "../utils/utils";
 
 export class GameState {
   private scene = new THREE.Scene();

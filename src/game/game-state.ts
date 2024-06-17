@@ -2,9 +2,10 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { GameLoader } from "../loaders/game-loader";
+import { RenderPipeline } from "./render-pipeline";
 
 export class GameState {
-  private renderer: THREE.WebGLRenderer;
+  private renderPipeline: RenderPipeline;
   private clock = new THREE.Clock();
 
   private scene = new THREE.Scene();
@@ -12,29 +13,14 @@ export class GameState {
   private controls: OrbitControls;
 
   constructor(private gameLoader: GameLoader) {
-    // Setup renderer
-    this.renderer = new THREE.WebGLRenderer();
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
-    this.renderer.toneMapping = THREE.LinearToneMapping;
-    this.renderer.toneMappingExposure = 1;
-    this.renderer.shadowMap.enabled = true;
-
-    // Add canvas to dom
-    const canvas = this.renderer.domElement;
-    const canvasRoot = document.getElementById("canvas-root");
-    canvasRoot?.appendChild(canvas);
-
-
-    // Handle any canvas resize events
-    window.addEventListener("resize", this.onCanvasResize);
-    this.onCanvasResize();
-
     this.setupCamera();
+
+    this.renderPipeline = new RenderPipeline(this.scene, this.camera);
+
     this.setupLights();
     this.setupObjects();
 
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
     this.controls.enableDamping = true;
     this.controls.target.set(0, 1, 0);
 
@@ -44,23 +30,9 @@ export class GameState {
     this.update();
   }
 
-  private onCanvasResize = () => {
-    const canvas = this.renderer.domElement;
-
-    this.renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-    this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
-
-    this.camera.updateProjectionMatrix();
-  };
-
   private setupCamera() {
     this.camera.fov = 75;
     this.camera.far = 500;
-    const canvas = this.renderer.domElement;
-    this.camera.aspect = canvas.clientWidth / canvas.clientHeight;
     this.camera.position.set(0, 1.5, 3);
   }
 
@@ -89,6 +61,6 @@ export class GameState {
 
     this.controls.update();
 
-    this.renderer.render(this.scene, this.camera)
+    this.renderPipeline.render(dt);
   };
 }

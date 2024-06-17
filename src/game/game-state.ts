@@ -51,6 +51,8 @@ export class GameState {
 
     const bandit = this.gameLoader.modelLoader.get("bandit");
     bandit.position.z = -0.5;
+    this.gameLoader.textureLoader.applyModelTexture(bandit, 'bandit');
+
     this.scene.add(bandit);
   }
 

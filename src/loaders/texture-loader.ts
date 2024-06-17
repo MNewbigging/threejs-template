@@ -10,6 +10,22 @@ export class TextureLoader {
     return this.textures.get(name);
   }
 
+  applyModelTexture(object: THREE.Object3D, textureName: string) {
+    const texture = this.get(textureName);
+    if (!texture) {
+      return;
+    }
+
+    object.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const mat = child.material as THREE.MeshLambertMaterial;
+        mat.map = texture;
+        // Synty models have this true by default, making model black
+        mat.vertexColors = false;
+      }
+    });
+  }
+
   load(onLoad: () => void) {
     // Setup loading manager
     this.loadingManager.onError = (url) => console.error("error loading", url);

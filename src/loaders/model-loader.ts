@@ -2,7 +2,6 @@ import * as THREE from "three";
 import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { TextureLoader } from "./texture-loader";
 
 export class ModelLoader {
   doneLoading = false;
@@ -10,8 +9,8 @@ export class ModelLoader {
 
   private loadingManager = new THREE.LoadingManager();
 
-  private textureLoader = new TextureLoader();
 
+  // Returns a clone of the model or a red sphere if not found
   get(modelName: string): THREE.Object3D {
     // Return the model if found
     const model = this.models.get(modelName);
@@ -37,8 +36,7 @@ export class ModelLoader {
       onLoad();
     };
 
-    // Load textures for models first, then models
-    this.textureLoader.load(this.loadModels);
+    this.loadModels();
   }
 
   private loadModels = () => {
@@ -69,11 +67,6 @@ export class ModelLoader {
   private loadSyntyModel(loader: FBXLoader) {
     const url = new URL("/models/bandit.fbx", import.meta.url).href;
     loader.load(url, (group) => {
-      const texture = this.textureLoader.get("bandit");
-      if (texture) {
-        this.applyModelTexture(group, texture);
-      }
-
       this.scaleSyntyModel(group);
       this.models.set("bandit", group);
     });

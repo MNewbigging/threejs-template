@@ -47,16 +47,26 @@ export class AnimLoader {
 
   loadAnims() {
     const loader = new FBXLoader(this.loadingManager);
+    this.getNameUrlMap().forEach((url, name) => {
+      loader.load(url, (group) => {
+        if (group.animations.length) {
+          // Assumes the fbx holds a single animation
+          const clip = group.animations[0];
+          clip.name = name;
+          this.clips.set(name, clip);
+        }
+      });
+    })
   }
 
-  private loadAnim(loader: FBXLoader) {
-    const url = new URL("/path/to/clip", import.meta.url).href;
-    loader.load(url, (group) => {
-      if (group.animations.length) {
-        const clip = group.animations[0];
-        clip.name = "clip-name";
-        this.clips.set("clip-name", clip);
-      }
-    });
+  private getNameUrlMap() {
+    const map = new Map<string, string>();
+
+    const idleUrl = new URL('/anims/idle.fbx', import.meta.url).href;
+    map.set('idle', idleUrl);
+
+    return map;
   }
+
+
 }

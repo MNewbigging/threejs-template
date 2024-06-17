@@ -39,12 +39,26 @@ export class ModelLoader {
     this.loadModels();
   }
 
+  private getNameUrlMap() {
+    const map = new Map<string, string>();
+
+    const banditUrl = new URL('/models/bandit.fbx', import.meta.url).href;
+    map.set('bandit', banditUrl);
+
+    return map;
+  }
+
   private loadModels = () => {
     const gltfLoader = new GLTFLoader(this.loadingManager);
     this.loadKenneyBox(gltfLoader);
 
     const fbxLoader = new FBXLoader(this.loadingManager);
-    this.loadSyntyModel(fbxLoader);
+    this.getNameUrlMap().forEach((url, name) => {
+      fbxLoader.load(url, group => {
+        this.scaleSyntyModel(group);
+        this.models.set(name, group);
+      });
+    })
   };
 
   private loadKenneyBox(loader: GLTFLoader) {
@@ -61,25 +75,6 @@ export class ModelLoader {
       });
 
       this.models.set("box", gltf.scene);
-    });
-  }
-
-  private loadSyntyModel(loader: FBXLoader) {
-    const url = new URL("/models/bandit.fbx", import.meta.url).href;
-    loader.load(url, (group) => {
-      this.scaleSyntyModel(group);
-      this.models.set("bandit", group);
-    });
-  }
-
-  private applyModelTexture(group: THREE.Group, texture: THREE.Texture) {
-    group.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        const mat = child.material as THREE.MeshLambertMaterial;
-        mat.map = texture;
-        // Synty models have this true by default, making model black
-        mat.vertexColors = false;
-      }
     });
   }
 

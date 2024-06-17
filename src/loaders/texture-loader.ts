@@ -40,15 +40,22 @@ export class TextureLoader {
 
   private loadTextures() {
     const loader = new THREE.TextureLoader(this.loadingManager);
-    this.loadBanditTexture(loader);
+    this.getNameUrlMap().forEach((url, name) => {
+      loader.load(url, texture => {
+        texture.encoding = THREE.sRGBEncoding;
+        this.textures.set(name, texture);
+      })
+    })
   }
 
-  private loadBanditTexture(loader: THREE.TextureLoader) {
-    const url = new URL("/textures/bandit-texture.png", import.meta.url).href;
-    loader.load(url, (texture) => {
-      // So colours don't look washed out
-      texture.encoding = THREE.sRGBEncoding;
-      this.textures.set("bandit", texture);
-    });
+  private getNameUrlMap() {
+    const map = new Map<string, string>();
+
+    const banditUrl = new URL('/textures/bandit-texture.png', import.meta.url).href;
+    map.set('bandit', banditUrl);
+
+    return map;
   }
+
+
 }

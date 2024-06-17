@@ -28,7 +28,7 @@ export class TextureLoader {
   }
 
   private loadBanditTexture(loader: THREE.TextureLoader) {
-    const url = new URL("/bandit-texture.png", import.meta.url).href;
+    const url = new URL("/textures/bandit-texture.png", import.meta.url).href;
     loader.load(url, (texture) => {
       // So colours don't look washed out
       texture.encoding = THREE.sRGBEncoding;

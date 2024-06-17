@@ -50,7 +50,7 @@ export class ModelLoader {
   };
 
   private loadKenneyBox(loader: GLTFLoader) {
-    const boxUrl = new URL("/box-small.glb", import.meta.url).href;
+    const boxUrl = new URL("/models/box-small.glb", import.meta.url).href;
     loader.load(boxUrl, (gltf) => {
       // Traverse the gltf scene
       gltf.scene.traverse((child) => {
@@ -67,7 +67,7 @@ export class ModelLoader {
   }
 
   private loadSyntyModel(loader: FBXLoader) {
-    const url = new URL("/bandit.fbx", import.meta.url).href;
+    const url = new URL("/models/bandit.fbx", import.meta.url).href;
     loader.load(url, (group) => {
       const texture = this.textureLoader.get("bandit");
       if (texture) {

@@ -4,6 +4,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { GameLoader } from "../loaders/game-loader";
 import { RenderPipeline } from "./render-pipeline";
 import { AnimatedCharacter } from "./animated-character";
+import { EventListener } from "../listeners/event-listener";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -15,7 +16,7 @@ export class GameState {
 
   private animatedCharacter: AnimatedCharacter;
 
-  constructor(private gameLoader: GameLoader) {
+  constructor(private gameLoader: GameLoader, private events: EventListener) {
     this.setupCamera();
 
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);

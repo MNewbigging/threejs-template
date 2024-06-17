@@ -10,4 +10,20 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
+  .start-button {
+    width: 200px;
+    height: 60px;
+    color: white;
+    font-weight: bolder;
+    font-size: 26px;
+    letter-spacing: 5px;
+    border: 1px solid white;
+    padding: 30px;
+    cursor: pointer;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }

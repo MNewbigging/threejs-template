@@ -3,8 +3,10 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 
 export class AnimLoader {
   doneLoading = false;
-  private clips = new Map<string, THREE.AnimationClip>();
+  readonly clips = new Map<string, THREE.AnimationClip>();
   private loadingManager = new THREE.LoadingManager();
+
+
 
   getClips(names: string[]): THREE.AnimationClip[] {
     const clips: THREE.AnimationClip[] = [];
@@ -25,6 +27,8 @@ export class AnimLoader {
     // Fetch each clip here, setup any props e.g
     const clip = this.clips.get("clip-name");
     if (clip) {
+      // Each animation may have specific props such as loop once/infinitely, clamp etc
+      // So there isn't a generic way to create these
       const action = mixer.clipAction(clip);
       action.setLoop(THREE.LoopOnce, 1);
       action.clampWhenFinished = true;

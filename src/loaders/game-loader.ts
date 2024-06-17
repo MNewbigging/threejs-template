@@ -27,12 +27,12 @@ export class GameLoader {
 
     this.modelLoader.load(this.onLoaderFinish);
     this.textureLoader.load(this.onLoaderFinish);
-    // this.animLoader.load(this.onLoaderFinish); // if adding, also check for doneLoading below
+    this.animLoader.load(this.onLoaderFinish); 
   }
 
   private onLoaderFinish = () => {
     // Simply check if all loaders have finished now
-    if (this.modelLoader.doneLoading && this.textureLoader.doneLoading) {
+    if (this.modelLoader.doneLoading && this.textureLoader.doneLoading && this.animLoader.doneLoading) {
       this.loading = false;
       this.onLoad?.();
     }

@@ -3,6 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { GameLoader } from "../loaders/game-loader";
 import { RenderPipeline } from "./render-pipeline";
+import { AnimatedCharacter } from "./animated-character";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -11,6 +12,8 @@ export class GameState {
   private scene = new THREE.Scene();
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
+
+  private animatedCharacter: AnimatedCharacter;
 
   constructor(private gameLoader: GameLoader) {
     this.setupCamera();
@@ -25,6 +28,10 @@ export class GameState {
     this.controls.target.set(0, 1, 0);
 
     this.scene.background = new THREE.Color("#1680AF");
+
+    this.animatedCharacter = this.setupAnimatedCharacter();
+    this.scene.add(this.animatedCharacter.object);
+    this.animatedCharacter.playAnimation('idle');
 
     // Start game
     this.update();
@@ -48,12 +55,22 @@ export class GameState {
   private setupObjects() {
     const box = this.gameLoader.modelLoader.get("box");
     this.scene.add(box);
+  }
 
-    const bandit = this.gameLoader.modelLoader.get("bandit");
-    bandit.position.z = -0.5;
-    this.gameLoader.textureLoader.applyModelTexture(bandit, 'bandit');
+  private setupAnimatedCharacter(): AnimatedCharacter {
+    const object = this.gameLoader.modelLoader.get("bandit");
+    object.position.z = -0.5;
+    this.gameLoader.textureLoader.applyModelTexture(object, 'bandit');
 
-    this.scene.add(bandit);
+    const mixer = new THREE.AnimationMixer(object);
+    const actions = new Map<string, THREE.AnimationAction>();
+    const idleClip = this.gameLoader.animLoader.clips.get('idle');
+    if (idleClip) {
+      const idleAction = mixer.clipAction(idleClip);
+      actions.set('idle', idleAction);
+    } 
+    
+    return new AnimatedCharacter(object, mixer, actions);
   }
 
   private update = () => {
@@ -62,6 +79,8 @@ export class GameState {
     const dt = this.clock.getDelta();
 
     this.controls.update();
+
+    this.animatedCharacter.update(dt);
 
     this.renderPipeline.render(dt);
   };

@@ -18,10 +18,8 @@ export class TextureLoader {
 
     object.traverse((child) => {
       if (child instanceof THREE.Mesh) {
-        const mat = child.material as THREE.MeshLambertMaterial;
-        mat.map = texture;
-        // Synty models have this true by default, making model black
-        mat.vertexColors = false;
+        child.material.map = texture;
+        child.material.shininess = 0;
       }
     });
   }
@@ -41,21 +39,20 @@ export class TextureLoader {
   private loadTextures() {
     const loader = new THREE.TextureLoader(this.loadingManager);
     this.getNameUrlMap().forEach((url, name) => {
-      loader.load(url, texture => {
+      loader.load(url, (texture) => {
         texture.encoding = THREE.sRGBEncoding;
         this.textures.set(name, texture);
-      })
-    })
+      });
+    });
   }
 
   private getNameUrlMap() {
     const map = new Map<string, string>();
 
-    const banditUrl = new URL('/textures/bandit-texture.png', import.meta.url).href;
-    map.set('bandit', banditUrl);
+    const banditUrl = new URL("/textures/bandit-texture.png", import.meta.url)
+      .href;
+    map.set("bandit", banditUrl);
 
     return map;
   }
-
-
 }

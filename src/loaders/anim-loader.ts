@@ -6,8 +6,6 @@ export class AnimLoader {
   readonly clips = new Map<string, THREE.AnimationClip>();
   private loadingManager = new THREE.LoadingManager();
 
-
-
   getClips(names: string[]): THREE.AnimationClip[] {
     const clips: THREE.AnimationClip[] = [];
 
@@ -60,17 +58,15 @@ export class AnimLoader {
           this.clips.set(name, clip);
         }
       });
-    })
+    });
   }
 
   private getNameUrlMap() {
     const map = new Map<string, string>();
 
-    const idleUrl = new URL('/anims/idle.fbx', import.meta.url).href;
-    map.set('idle', idleUrl);
+    const idleUrl = new URL("/anims/idle.fbx", import.meta.url).href;
+    map.set("idle", idleUrl);
 
     return map;
   }
-
-
 }

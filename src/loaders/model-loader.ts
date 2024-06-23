@@ -9,7 +9,6 @@ export class ModelLoader {
 
   private loadingManager = new THREE.LoadingManager();
 
-
   // Returns a clone of the model or a red sphere if not found
   get(modelName: string): THREE.Object3D {
     // Return the model if found
@@ -42,8 +41,8 @@ export class ModelLoader {
   private getNameUrlMap() {
     const map = new Map<string, string>();
 
-    const banditUrl = new URL('/models/bandit.fbx', import.meta.url).href;
-    map.set('bandit', banditUrl);
+    const banditUrl = new URL("/models/bandit.fbx", import.meta.url).href;
+    map.set("bandit", banditUrl);
 
     return map;
   }
@@ -54,11 +53,10 @@ export class ModelLoader {
 
     const fbxLoader = new FBXLoader(this.loadingManager);
     this.getNameUrlMap().forEach((url, name) => {
-      fbxLoader.load(url, group => {
-        this.scaleSyntyModel(group);
+      fbxLoader.load(url, (group) => {
         this.models.set(name, group);
       });
-    })
+    });
   };
 
   private loadKenneyBox(loader: GLTFLoader) {
@@ -76,11 +74,5 @@ export class ModelLoader {
 
       this.models.set("box", gltf.scene);
     });
-  }
-
-  private scaleSyntyModel(group: THREE.Group) {
-    // Synty models need scale adjusting, unless done in blender beforehand
-    group.scale.multiplyScalar(0.01);
-    group.updateMatrixWorld();
   }
 }

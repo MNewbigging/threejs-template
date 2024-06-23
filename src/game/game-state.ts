@@ -32,7 +32,7 @@ export class GameState {
 
     this.animatedCharacter = this.setupAnimatedCharacter();
     this.scene.add(this.animatedCharacter.object);
-    this.animatedCharacter.playAnimation('idle');
+    this.animatedCharacter.playAnimation("idle");
 
     // Start game
     this.update();
@@ -61,16 +61,16 @@ export class GameState {
   private setupAnimatedCharacter(): AnimatedCharacter {
     const object = this.gameLoader.modelLoader.get("bandit");
     object.position.z = -0.5;
-    this.gameLoader.textureLoader.applyModelTexture(object, 'bandit');
+    this.gameLoader.textureLoader.applyModelTexture(object, "bandit");
 
     const mixer = new THREE.AnimationMixer(object);
     const actions = new Map<string, THREE.AnimationAction>();
-    const idleClip = this.gameLoader.animLoader.clips.get('idle');
+    const idleClip = this.gameLoader.animLoader.clips.get("idle");
     if (idleClip) {
       const idleAction = mixer.clipAction(idleClip);
-      actions.set('idle', idleAction);
-    } 
-    
+      actions.set("idle", idleAction);
+    }
+
     return new AnimatedCharacter(object, mixer, actions);
   }
 

@@ -1,10 +1,10 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
-import { GameLoader } from "../loaders/game-loader";
 import { RenderPipeline } from "./render-pipeline";
 import { AnimatedCharacter } from "./animated-character";
 import { EventListener } from "../listeners/event-listener";
+import { AssetManager } from "./asset-manager";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -16,7 +16,10 @@ export class GameState {
 
   private animatedCharacter: AnimatedCharacter;
 
-  constructor(private gameLoader: GameLoader, private events: EventListener) {
+  constructor(
+    private assetManager: AssetManager,
+    private events: EventListener
+  ) {
     this.setupCamera();
 
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
@@ -54,18 +57,18 @@ export class GameState {
   }
 
   private setupObjects() {
-    const box = this.gameLoader.modelLoader.get("box");
+    const box = this.assetManager.models.get("box");
     this.scene.add(box);
   }
 
   private setupAnimatedCharacter(): AnimatedCharacter {
-    const object = this.gameLoader.modelLoader.get("bandit");
+    const object = this.assetManager.models.get("bandit");
     object.position.z = -0.5;
-    this.gameLoader.textureLoader.applyModelTexture(object, "bandit");
+    this.assetManager.applyModelTexture(object, "bandit");
 
     const mixer = new THREE.AnimationMixer(object);
     const actions = new Map<string, THREE.AnimationAction>();
-    const idleClip = this.gameLoader.animLoader.clips.get("idle");
+    const idleClip = this.assetManager.animations.get("idle");
     if (idleClip) {
       const idleAction = mixer.clipAction(idleClip);
       actions.set("idle", idleAction);

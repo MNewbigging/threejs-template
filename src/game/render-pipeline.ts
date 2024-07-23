@@ -25,8 +25,7 @@ export class RenderPipeline {
 
     // Add canvas to dom
     const canvas = this.canvas;
-    const canvasRoot = document.getElementById("canvas-root");
-    canvasRoot?.appendChild(canvas);
+    document.body.appendChild(canvas);
 
     window.addEventListener("resize", this.onCanvasResize);
     this.onCanvasResize();

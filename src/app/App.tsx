@@ -14,7 +14,7 @@ export const App: React.FC<AppProps> = observer(({ appState }) => {
   const started = appState.started;
 
   return (
-    <div id="canvas-root">
+    <div className="ui-root">
       {!started && <LoadingScreen appState={appState} />}
     </div>
   );

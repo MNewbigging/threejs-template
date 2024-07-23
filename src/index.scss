@@ -23,3 +23,11 @@ html {
   width: 100vw;
   height: 100vh;
 }
+
+// So the canvas does not interrupt flow of other UI
+canvas {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+}

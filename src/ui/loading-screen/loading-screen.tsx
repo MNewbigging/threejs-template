@@ -2,8 +2,9 @@ import "./loading-screen.scss";
 import React from "react";
 import { Spinner } from "@blueprintjs/core";
 import { SpinnerSize } from "@blueprintjs/core/lib/esm/components";
-import { AppState } from "../app/app-state";
+
 import { observer } from "mobx-react-lite";
+import { AppState } from "../../app/app-state";
 
 interface LoadingScreenProps {
   appState: AppState;

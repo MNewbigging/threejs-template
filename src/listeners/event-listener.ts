@@ -1,12 +1,12 @@
 import * as THREE from "three";
 
 export interface EventMap {
-  'event-name': null; 
+  "event-name": null;
 }
 
 type EventCallback = (event: any) => void;
 
-export class EventListener {
+class EventListener {
   private events = new Map<keyof EventMap, EventCallback[]>();
 
   on<E extends keyof EventMap>(
@@ -31,3 +31,5 @@ export class EventListener {
     callbacks.forEach((cb) => cb(event));
   }
 }
+
+export const eventListener = new EventListener();

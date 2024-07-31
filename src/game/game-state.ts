@@ -44,10 +44,10 @@ export class GameState {
   }
 
   private setupLights() {
-    const ambientLight = new THREE.AmbientLight(undefined, 0.25);
+    const ambientLight = new THREE.AmbientLight(undefined, 1);
     this.scene.add(ambientLight);
 
-    const directLight = new THREE.DirectionalLight(undefined, 2);
+    const directLight = new THREE.DirectionalLight(undefined, Math.PI);
     directLight.position.copy(new THREE.Vector3(0.75, 1, 0.75).normalize());
     this.scene.add(directLight);
   }

@@ -4,6 +4,7 @@ import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectio
 import { OutlinePass } from "three/examples/jsm/postprocessing/OutlinePass";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass";
 
 export class RenderPipeline {
   private effectComposer: EffectComposer;
@@ -18,7 +19,7 @@ export class RenderPipeline {
     // Setup renderer
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    this.renderer.outputEncoding = THREE.sRGBEncoding;
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.LinearToneMapping;
     this.renderer.toneMappingExposure = 1;
     this.renderer.shadowMap.enabled = true;
@@ -50,8 +51,7 @@ export class RenderPipeline {
     this.outlinePass.visibleEdgeColor.set("#ffffff");
     this.effectComposer.addPass(this.outlinePass);
 
-    // This corrects the output from the outline pass for srgbe encoding
-    this.effectComposer.addPass(new ShaderPass(GammaCorrectionShader));
+    this.effectComposer.addPass(new OutputPass());
   }
 
   get canvas() {

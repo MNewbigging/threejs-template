@@ -66,7 +66,7 @@ export class AssetManager {
     const banditUrl = new URL("/textures/bandit-texture.png", import.meta.url)
       .href;
     textureLoader.load(banditUrl, (texture) => {
-      texture.encoding = THREE.sRGBEncoding;
+      texture.colorSpace = THREE.SRGBColorSpace;
       this.textures.set("bandit", texture);
     });
 

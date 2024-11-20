@@ -1,16 +1,35 @@
 import * as THREE from "three";
+import * as SkeletonUtils from "three/examples/jsm/utils/SkeletonUtils";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { GLTF, GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RGBELoader } from "three/examples/jsm/loaders/RGBELoader";
 
+export enum AnimationAsset {
+  BANDIT_IDLE = "idle.fbx",
+}
+
+export enum ModelAsset {
+  BANDIT = "bandit.fbx",
+  BOX_SMALL = "box-small.glb",
+}
+
+export enum TextureAsset {
+  BANDIT = "bandit-texture.png",
+  HDR = "orchard_cartoony.hdr",
+}
+
 export class AssetManager {
-  models = new Map();
-  textures = new Map();
-  animations = new Map();
+  private models = new Map<ModelAsset, THREE.Group>();
+  textures = new Map<TextureAsset, THREE.Texture>();
+  animations = new Map<AnimationAsset, THREE.AnimationClip>();
 
   private loadingManager = new THREE.LoadingManager();
+  private fbxLoader = new FBXLoader(this.loadingManager);
+  private gltfLoader = new GLTFLoader(this.loadingManager);
+  private rgbeLoader = new RGBELoader(this.loadingManager);
+  private textureLoader = new THREE.TextureLoader(this.loadingManager);
 
-  applyModelTexture(model: THREE.Object3D, textureName: string) {
+  applyModelTexture(model: THREE.Object3D, textureName: TextureAsset) {
     const texture = this.textures.get(textureName);
     if (!texture) {
       return;
@@ -23,15 +42,23 @@ export class AssetManager {
     });
   }
 
-  load(): Promise<void> {
-    const fbxLoader = new FBXLoader(this.loadingManager);
-    const gltfLoader = new GLTFLoader(this.loadingManager);
-    const rgbeLoader = new RGBELoader(this.loadingManager);
-    const textureLoader = new THREE.TextureLoader(this.loadingManager);
+  getModel(name: ModelAsset): THREE.Object3D {
+    const model = this.models.get(name);
+    if (model) {
+      return SkeletonUtils.clone(model);
+    }
 
-    this.loadModels(fbxLoader, gltfLoader);
-    this.loadTextures(rgbeLoader, textureLoader);
-    this.loadAnimations(fbxLoader);
+    // Ensure we always return an object 3d
+    return new THREE.Mesh(
+      new THREE.SphereGeometry(),
+      new THREE.MeshBasicMaterial({ color: "red" })
+    );
+  }
+
+  load(): Promise<void> {
+    this.loadModels();
+    this.loadTextures();
+    this.loadAnimations();
 
     return new Promise((resolve) => {
       this.loadingManager.onLoad = () => {
@@ -40,56 +67,98 @@ export class AssetManager {
     });
   }
 
-  private loadModels(fbxLoader: FBXLoader, gltfLoader: GLTFLoader) {
-    // bandit
+  private loadModels() {
+    this.loadModel(ModelAsset.BANDIT);
 
-    const banditUrl = new URL("/models/bandit.fbx", import.meta.url).href;
-    fbxLoader.load(banditUrl, (group) => this.models.set("bandit", group));
-
-    // box
-    const boxUrl = new URL("/models/box-small.glb", import.meta.url).href;
-    gltfLoader.load(boxUrl, (gltf) => {
-      gltf.scene.traverse((child) => {
+    this.loadModel(ModelAsset.BOX_SMALL, (group: THREE.Group) => {
+      group.traverse((child: THREE.Object3D) => {
         if (child instanceof THREE.Mesh) {
           child.material.metalness = 0; // kenney assets require this to render correctly
         }
       });
-      this.models.set("box", gltf.scene);
     });
   }
 
-  private loadTextures(
-    rgbeLoader: RGBELoader,
-    textureLoader: THREE.TextureLoader
+  private loadTextures() {
+    this.loadTexture(
+      TextureAsset.BANDIT,
+      (texture) => (texture.colorSpace = THREE.SRGBColorSpace)
+    );
+
+    this.loadTexture(
+      TextureAsset.HDR,
+      (texture) => (texture.mapping = THREE.EquirectangularReflectionMapping)
+    );
+  }
+
+  private loadAnimations() {
+    Object.values(AnimationAsset).forEach((filename) =>
+      this.loadAnimation(filename)
+    );
+  }
+
+  private loadModel(
+    filename: ModelAsset,
+    onLoad?: (group: THREE.Group) => void
   ) {
-    // bandit texture
-    const banditUrl = new URL("/textures/bandit-texture.png", import.meta.url)
-      .href;
-    textureLoader.load(banditUrl, (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      this.textures.set("bandit", texture);
-    });
+    const path = `${getPathPrefix()}/models/${filename}`;
+    const url = getUrl(path);
 
-    // skybox
-    const orchardUrl = new URL(
-      "/textures/orchard_cartoony.hdr",
-      import.meta.url
-    ).href;
-    rgbeLoader.load(orchardUrl, (texture) => {
-      texture.mapping = THREE.EquirectangularReflectionMapping;
-      this.textures.set("hdri", texture);
+    const filetype = filename.split(".")[1];
+
+    // FBX
+    if (filetype === "fbx") {
+      this.fbxLoader.load(url, (group: THREE.Group) => {
+        onLoad?.(group);
+        this.models.set(filename, group);
+      });
+
+      return;
+    }
+
+    // GLTF
+    this.gltfLoader.load(url, (gltf: GLTF) => {
+      onLoad?.(gltf.scene);
+      this.models.set(filename, gltf.scene);
     });
   }
 
-  private loadAnimations(fbxLoader: FBXLoader) {
-    // bandit idle
-    const idleUrl = new URL("/anims/idle.fbx", import.meta.url).href;
-    fbxLoader.load(idleUrl, (group) => {
+  private loadTexture(
+    filename: TextureAsset,
+    onLoad?: (texture: THREE.Texture) => void
+  ) {
+    const path = `${getPathPrefix()}/textures/${filename}`;
+    const url = getUrl(path);
+
+    const filetype = filename.split(".")[1];
+    const loader = filetype === "png" ? this.textureLoader : this.rgbeLoader;
+
+    loader.load(url, (texture) => {
+      onLoad?.(texture);
+      this.textures.set(filename, texture);
+    });
+  }
+
+  private loadAnimation(filename: AnimationAsset) {
+    const path = `${getPathPrefix()}/anims/${filename}`;
+    const url = getUrl(path);
+
+    this.fbxLoader.load(url, (group) => {
       if (group.animations.length) {
         const clip = group.animations[0];
-        clip.name = "idle";
-        this.animations.set("idle", clip);
+        clip.name = filename;
+        this.animations.set(filename, clip);
       }
     });
   }
+}
+
+function getPathPrefix() {
+  // Using template strings to create url paths breaks on github pages
+  // We need to manually add the required /repo/ prefix to the path if not on localhost
+  return location.hostname === "localhost" ? "" : "/repo-name-here";
+}
+
+function getUrl(path: string) {
+  return new URL(path, import.meta.url).href;
 }

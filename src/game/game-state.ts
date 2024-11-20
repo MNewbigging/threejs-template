@@ -3,7 +3,13 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import { RenderPipeline } from "./render-pipeline";
 import { AnimatedCharacter } from "./animated-character";
-import { AssetManager } from "./asset-manager";
+import {
+  AnimationAsset,
+  AssetManager,
+  ModelAsset,
+  TextureAsset,
+} from "./asset-manager";
+import { AnimatedObject } from "./animated-object";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -13,7 +19,7 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  private animatedCharacter: AnimatedCharacter;
+  private animatedObject: AnimatedObject;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -29,9 +35,10 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
-    this.animatedCharacter = this.setupAnimatedCharacter();
-    this.scene.add(this.animatedCharacter.object);
-    this.animatedCharacter.playAnimation("idle");
+    this.animatedObject = new AnimatedObject(assetManager);
+    this.animatedObject.position.z = -0.5;
+    this.animatedObject.playAnimation("idle");
+    this.scene.add(this.animatedObject);
 
     // Start game
     this.update();
@@ -53,24 +60,8 @@ export class GameState {
   }
 
   private setupObjects() {
-    const box = this.assetManager.models.get("box");
+    const box = this.assetManager.getModel(ModelAsset.BOX_SMALL);
     this.scene.add(box);
-  }
-
-  private setupAnimatedCharacter(): AnimatedCharacter {
-    const object = this.assetManager.models.get("bandit");
-    object.position.z = -0.5;
-    this.assetManager.applyModelTexture(object, "bandit");
-
-    const mixer = new THREE.AnimationMixer(object);
-    const actions = new Map<string, THREE.AnimationAction>();
-    const idleClip = this.assetManager.animations.get("idle");
-    if (idleClip) {
-      const idleAction = mixer.clipAction(idleClip);
-      actions.set("idle", idleAction);
-    }
-
-    return new AnimatedCharacter(object, mixer, actions);
   }
 
   private update = () => {
@@ -80,7 +71,7 @@ export class GameState {
 
     this.controls.update();
 
-    this.animatedCharacter.update(dt);
+    this.animatedObject.update(dt);
 
     this.renderPipeline.render(dt);
   };

@@ -1,14 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-
 import { RenderPipeline } from "./render-pipeline";
-import { AnimatedCharacter } from "./animated-character";
-import {
-  AnimationAsset,
-  AssetManager,
-  ModelAsset,
-  TextureAsset,
-} from "./asset-manager";
+import { AssetManager, ModelAsset } from "./asset-manager";
 import { AnimatedObject } from "./animated-object";
 
 export class GameState {

@@ -1,5 +1,5 @@
 import "./loading-screen.scss";
-import { appState } from "../../state/app-state";
+import { appState } from "../../app-state/app-state";
 import { useEventUpdater } from "../hooks/use-event-updater";
 
 export function LoadingScreen() {

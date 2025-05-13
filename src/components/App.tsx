@@ -1,6 +1,6 @@
 import "./app.scss";
 
-import { appState } from "../state/app-state";
+import { appState } from "../app-state/app-state";
 import { LoadingScreen } from "./loading-screen/loading-screen";
 import { useEventUpdater } from "./hooks/use-event-updater";
 

@@ -1,5 +1,5 @@
-import { GameState } from "./game/game-state";
-import { AssetManager } from "./game/asset-manager";
+import { GameState } from "../game/game-state";
+import { AssetManager } from "../game/asset-manager";
 import { eventListener } from "../events/event-listener";
 
 class AppState {

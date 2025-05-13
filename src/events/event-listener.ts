@@ -1,5 +1,6 @@
 export interface EventMap {
-  "event-name": null;
+  "game-loaded": null;
+  "game-started": null;
 }
 
 type EventCallback = (event: any) => void;

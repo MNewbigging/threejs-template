@@ -1,17 +1,13 @@
 import "./app.scss";
 
-import React from "react";
-import { observer } from "mobx-react-lite";
-
-import { LoadingScreen } from "../loading-screen/loading-screen";
 import { appState } from "../state/app-state";
+import { LoadingScreen } from "./loading-screen/loading-screen";
+import { useEventUpdater } from "./hooks/use-event-updater";
 
-export const App: React.FC = observer(() => {
+export function App() {
+  useEventUpdater("game-started");
+
   const started = appState.started;
 
-  return (
-    <div className="ui-root">
-      {!started && <LoadingScreen appState={appState} />}
-    </div>
-  );
-});
+  return <div className="ui-root">{!started && <LoadingScreen />}</div>;
+}

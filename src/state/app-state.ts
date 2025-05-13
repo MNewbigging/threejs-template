@@ -2,7 +2,7 @@ import { GameState } from "../game/game-state";
 import { action, makeAutoObservable, observable } from "mobx";
 import { AssetManager } from "../game/asset-manager";
 
-export class AppState {
+class AppState {
   @observable loaded = false;
   @observable started = false;
 
@@ -30,3 +30,5 @@ export class AppState {
     this.loaded = true;
   };
 }
+
+export const appState = new AppState();

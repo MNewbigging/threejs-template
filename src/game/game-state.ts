@@ -13,7 +13,11 @@ export class GameState {
   private controls: OrbitControls;
 
   private player: THREE.Mesh;
+  private playerBounds = new THREE.Box3();
   private playerBoundsHelper: THREE.BoxHelper;
+
+  private floor: THREE.Mesh;
+  private floorBounds = new THREE.Box3();
 
   private reused = {
     box: new THREE.Box3(),
@@ -39,12 +43,19 @@ export class GameState {
     this.player = this.setupPlayer();
     this.scene.add(this.player);
 
+    this.player.position.y = 5;
+
     this.playerBoundsHelper = new THREE.BoxHelper(this.player, 0xff0000);
     this.scene.add(this.playerBoundsHelper);
 
     //
-    const floor = this.createFloor();
-    this.scene.add(floor);
+    this.floor = this.createFloor();
+    this.scene.add(this.floor);
+
+    this.floorBounds.setFromObject(this.floor);
+
+    const floorBoundsHelper = new THREE.BoxHelper(this.floor, 0x00ff00);
+    this.scene.add(floorBoundsHelper);
 
     // Start game
     this.update();
@@ -88,6 +99,8 @@ export class GameState {
 
     floor.translateY(-height * 0.5);
 
+    floor.geometry.computeBoundingBox();
+
     return floor;
   }
 
@@ -95,8 +108,25 @@ export class GameState {
     // Move down with gravity
     this.player.position.y -= dt;
 
+    // Update bounds
+    this.playerBounds.setFromObject(this.player);
+
     // Update bounding box helper
     this.playerBoundsHelper.update();
+  }
+
+  private collisions() {
+    const playerBounds = this.playerBounds;
+    const floorBounds = this.floorBounds;
+
+    const overlap = this.reused.box;
+    overlap.copy(playerBounds);
+    overlap.intersect(floorBounds);
+
+    const overlapSize = overlap.getSize(this.reused.vec3);
+    if (overlapSize.y > 0) {
+      this.player.position.y += overlapSize.y;
+    }
   }
 
   private update = () => {
@@ -112,6 +142,9 @@ export class GameState {
 
     //
 
+    this.collisions();
+
+    //
     this.renderPipeline.render(dt);
   };
 }

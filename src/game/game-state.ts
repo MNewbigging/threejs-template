@@ -4,6 +4,15 @@ import { RenderPipeline } from "./render-pipeline";
 import { AssetManager, ModelAsset } from "./asset-manager";
 import { AnimatedObject } from "./animated-object";
 
+interface Floor {
+  mesh: THREE.Mesh;
+  bounds: THREE.Box3;
+}
+
+const CONFIG = {
+  GRAVITY: 2,
+};
+
 export class GameState {
   private renderPipeline: RenderPipeline;
   private clock = new THREE.Clock();
@@ -16,8 +25,7 @@ export class GameState {
   private playerBounds = new THREE.Box3();
   private playerBoundsHelper: THREE.BoxHelper;
 
-  private floor: THREE.Mesh;
-  private floorBounds = new THREE.Box3();
+  private floors: Floor[] = [];
 
   private reused = {
     box: new THREE.Box3(),
@@ -43,19 +51,14 @@ export class GameState {
     this.player = this.setupPlayer();
     this.scene.add(this.player);
 
-    this.player.position.y = 5;
-
     this.playerBoundsHelper = new THREE.BoxHelper(this.player, 0xff0000);
     this.scene.add(this.playerBoundsHelper);
 
     //
-    this.floor = this.createFloor();
-    this.scene.add(this.floor);
 
-    this.floorBounds.setFromObject(this.floor);
-
-    const floorBoundsHelper = new THREE.BoxHelper(this.floor, 0x00ff00);
-    this.scene.add(floorBoundsHelper);
+    const floor = this.createFloor();
+    this.floors.push(floor);
+    this.scene.add(floor.mesh);
 
     // Start game
     this.update();
@@ -89,24 +92,26 @@ export class GameState {
     return player;
   }
 
-  private createFloor() {
-    const height = 1;
+  private createFloor(): Floor {
+    const height = 5;
 
-    const floor = new THREE.Mesh(
+    const mesh = new THREE.Mesh(
       new THREE.BoxGeometry(3, height, 3),
       new THREE.MeshBasicMaterial()
     );
 
-    floor.translateY(-height * 0.5);
+    mesh.translateY(-height * 0.5);
 
-    floor.geometry.computeBoundingBox();
+    mesh.geometry.computeBoundingBox();
 
-    return floor;
+    const bounds = new THREE.Box3().setFromObject(mesh);
+
+    return { mesh, bounds };
   }
 
   private updatePlayer(dt: number) {
     // Move down with gravity
-    this.player.position.y -= dt;
+    this.player.position.y -= dt * CONFIG.GRAVITY;
 
     // Update bounds
     this.playerBounds.setFromObject(this.player);
@@ -115,17 +120,26 @@ export class GameState {
     this.playerBoundsHelper.update();
   }
 
+  private updateFloors(dt: number) {
+    // All floors move left
+    for (const floor of this.floors) {
+      floor.mesh.position.z -= dt;
+      floor.bounds.setFromObject(floor.mesh);
+    }
+  }
+
   private collisions() {
     const playerBounds = this.playerBounds;
-    const floorBounds = this.floorBounds;
 
-    const overlap = this.reused.box;
-    overlap.copy(playerBounds);
-    overlap.intersect(floorBounds);
+    for (const floor of this.floors) {
+      const overlap = this.reused.box;
+      overlap.copy(playerBounds);
+      overlap.intersect(floor.bounds);
 
-    const overlapSize = overlap.getSize(this.reused.vec3);
-    if (overlapSize.y > 0) {
-      this.player.position.y += overlapSize.y;
+      const overlapSize = overlap.getSize(this.reused.vec3);
+      if (overlapSize.y > 0) {
+        this.player.position.y += overlapSize.y;
+      }
     }
   }
 
@@ -139,6 +153,7 @@ export class GameState {
     //
 
     this.updatePlayer(dt);
+    this.updateFloors(dt);
 
     //
 

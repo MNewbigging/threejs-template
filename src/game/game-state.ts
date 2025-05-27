@@ -12,15 +12,12 @@ export class GameState {
   private camera = new THREE.PerspectiveCamera();
   private controls: OrbitControls;
 
-  private animatedObject: AnimatedObject;
+  private player: THREE.Mesh;
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
-
     this.renderPipeline = new RenderPipeline(this.scene, this.camera);
-
     this.setupLights();
-    this.setupObjects();
 
     this.controls = new OrbitControls(this.camera, this.renderPipeline.canvas);
     this.controls.enableDamping = true;
@@ -28,10 +25,17 @@ export class GameState {
 
     this.scene.background = new THREE.Color("#1680AF");
 
-    this.animatedObject = new AnimatedObject(assetManager);
-    this.animatedObject.position.z = -0.5;
-    this.animatedObject.playAnimation("idle");
-    this.scene.add(this.animatedObject);
+    const axesHelper = new THREE.AxesHelper(10);
+    this.scene.add(axesHelper);
+
+    //
+
+    this.player = this.setupPlayer();
+    this.scene.add(this.player);
+
+    //
+    const floor = this.createFloor();
+    this.scene.add(floor);
 
     // Start game
     this.update();
@@ -40,7 +44,7 @@ export class GameState {
   private setupCamera() {
     this.camera.fov = 75;
     this.camera.far = 500;
-    this.camera.position.set(0, 1.5, 3);
+    this.camera.position.set(-12, 1.5, 0);
   }
 
   private setupLights() {
@@ -52,9 +56,30 @@ export class GameState {
     this.scene.add(directLight);
   }
 
-  private setupObjects() {
-    const box = this.assetManager.getModel(ModelAsset.BOX_SMALL);
-    this.scene.add(box);
+  private setupPlayer() {
+    const height = 1;
+
+    const player = new THREE.Mesh(
+      new THREE.BoxGeometry(1, height, 1),
+      new THREE.MeshBasicMaterial({ color: "green" })
+    );
+
+    player.translateY(height * 0.5);
+
+    return player;
+  }
+
+  private createFloor() {
+    const height = 1;
+
+    const floor = new THREE.Mesh(
+      new THREE.BoxGeometry(3, height, 3),
+      new THREE.MeshBasicMaterial()
+    );
+
+    floor.translateY(-height * 0.5);
+
+    return floor;
   }
 
   private update = () => {
@@ -63,8 +88,6 @@ export class GameState {
     const dt = this.clock.getDelta();
 
     this.controls.update();
-
-    this.animatedObject.update(dt);
 
     this.renderPipeline.render(dt);
   };

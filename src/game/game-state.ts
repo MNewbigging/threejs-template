@@ -4,11 +4,6 @@ import { RenderPipeline } from "./render-pipeline";
 import { AssetManager, ModelAsset } from "./asset-manager";
 import { AnimatedObject } from "./animated-object";
 
-interface Floor {
-  mesh: THREE.Mesh;
-  bounds: THREE.Box3;
-}
-
 const CONFIG = {
   GRAVITY: 2,
 };
@@ -25,11 +20,12 @@ export class GameState {
   private playerBounds = new THREE.Box3();
   private playerBoundsHelper: THREE.BoxHelper;
 
-  private floors: Floor[] = [];
+  private floors: THREE.Mesh[] = [];
 
   private reused = {
-    box: new THREE.Box3(),
+    overlap: new THREE.Box3(),
     vec3: new THREE.Vector3(),
+    floorBounds: new THREE.Box3(),
   };
 
   constructor(private assetManager: AssetManager) {
@@ -56,9 +52,14 @@ export class GameState {
 
     //
 
-    const floor = this.createFloor();
-    this.floors.push(floor);
-    this.scene.add(floor.mesh);
+    // Stairs!
+    for (let i = 0; i < 3; i++) {
+      const floor = this.createFloor();
+      floor.position.y = i * -1;
+      floor.position.z = i * 3;
+      this.floors.push(floor);
+      this.scene.add(floor);
+    }
 
     // Start game
     this.update();
@@ -92,7 +93,7 @@ export class GameState {
     return player;
   }
 
-  private createFloor(): Floor {
+  private createFloor() {
     const height = 5;
 
     const mesh = new THREE.Mesh(
@@ -100,13 +101,11 @@ export class GameState {
       new THREE.MeshBasicMaterial()
     );
 
-    mesh.translateY(-height * 0.5);
+    mesh.geometry.translate(0, -height * 0.5, 0);
 
-    mesh.geometry.computeBoundingBox();
+    mesh.position.set(0, 0, 0);
 
-    const bounds = new THREE.Box3().setFromObject(mesh);
-
-    return { mesh, bounds };
+    return mesh;
   }
 
   private updatePlayer(dt: number) {
@@ -123,8 +122,7 @@ export class GameState {
   private updateFloors(dt: number) {
     // All floors move left
     for (const floor of this.floors) {
-      floor.mesh.position.z -= dt;
-      floor.bounds.setFromObject(floor.mesh);
+      floor.position.z -= dt;
     }
   }
 
@@ -132,9 +130,10 @@ export class GameState {
     const playerBounds = this.playerBounds;
 
     for (const floor of this.floors) {
-      const overlap = this.reused.box;
+      const overlap = this.reused.overlap;
+      const floorBounds = this.reused.floorBounds.setFromObject(floor);
       overlap.copy(playerBounds);
-      overlap.intersect(floor.bounds);
+      overlap.intersect(floorBounds);
 
       const overlapSize = overlap.getSize(this.reused.vec3);
       if (overlapSize.y > 0) {

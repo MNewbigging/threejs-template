@@ -1,12 +1,8 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { RenderPipeline } from "./render-pipeline";
-import { AssetManager, ModelAsset } from "./asset-manager";
-import { AnimatedObject } from "./animated-object";
-
-const CONFIG = {
-  GRAVITY: 2,
-};
+import { AssetManager } from "./asset-manager";
+import { KeyboardListener } from "../listeners/keyboard-listener";
 
 export class GameState {
   private renderPipeline: RenderPipeline;
@@ -20,7 +16,12 @@ export class GameState {
   private playerBounds = new THREE.Box3();
   private playerBoundsHelper: THREE.BoxHelper;
 
+  private gravity = new THREE.Vector3(0, -9.81, 0);
+  private velocity = new THREE.Vector3();
+
   private floors: THREE.Mesh[] = [];
+
+  private keyboardListener = new KeyboardListener();
 
   private reused = {
     overlap: new THREE.Box3(),
@@ -52,7 +53,7 @@ export class GameState {
 
     //
 
-    // Stairs!
+    // Stairs
     for (let i = 0; i < 3; i++) {
       const floor = this.createFloor();
       floor.position.y = i * -1;
@@ -60,6 +61,17 @@ export class GameState {
       this.floors.push(floor);
       this.scene.add(floor);
     }
+
+    // Gaps between floors
+    for (let i = 0; i < 3; i++) {
+      const floor = this.createFloor();
+      floor.position.y = -3;
+      floor.position.z = 12 + i * 5;
+      this.floors.push(floor);
+      this.scene.add(floor);
+    }
+
+    this.keyboardListener.on(" ", this.onPressSpace);
 
     // Start game
     this.update();
@@ -108,9 +120,18 @@ export class GameState {
     return mesh;
   }
 
+  private onPressSpace = () => {
+    // Add to y velocity
+    this.velocity.y += 4;
+    console.log("jump");
+  };
+
   private updatePlayer(dt: number) {
-    // Move down with gravity
-    this.player.position.y -= dt * CONFIG.GRAVITY;
+    // Velocity is always affected by gravity
+    this.velocity.add(this.gravity.clone().multiplyScalar(dt));
+
+    // Move according to velocity
+    this.player.position.add(this.velocity.clone().multiplyScalar(dt));
 
     // Update bounds
     this.playerBounds.setFromObject(this.player);
@@ -135,10 +156,20 @@ export class GameState {
       overlap.copy(playerBounds);
       overlap.intersect(floorBounds);
 
+      // No intersection with this floor - check others
+      if (overlap.isEmpty()) continue;
+
+      // We hit the floor - reset velocity so it does not accumulate while on the floor
+      this.velocity.set(0, 0, 0);
+
       const overlapSize = overlap.getSize(this.reused.vec3);
+
+      // Does it overlap
       if (overlapSize.y > 0) {
         this.player.position.y += overlapSize.y;
       }
+
+      break;
     }
   }
 

@@ -13,6 +13,12 @@ export class GameState {
   private controls: OrbitControls;
 
   private player: THREE.Mesh;
+  private playerBoundsHelper: THREE.BoxHelper;
+
+  private reused = {
+    box: new THREE.Box3(),
+    vec3: new THREE.Vector3(),
+  };
 
   constructor(private assetManager: AssetManager) {
     this.setupCamera();
@@ -32,6 +38,9 @@ export class GameState {
 
     this.player = this.setupPlayer();
     this.scene.add(this.player);
+
+    this.playerBoundsHelper = new THREE.BoxHelper(this.player, 0xff0000);
+    this.scene.add(this.playerBoundsHelper);
 
     //
     const floor = this.createFloor();
@@ -82,12 +91,26 @@ export class GameState {
     return floor;
   }
 
+  private updatePlayer(dt: number) {
+    // Move down with gravity
+    this.player.position.y -= dt;
+
+    // Update bounding box helper
+    this.playerBoundsHelper.update();
+  }
+
   private update = () => {
     requestAnimationFrame(this.update);
 
     const dt = this.clock.getDelta();
 
     this.controls.update();
+
+    //
+
+    this.updatePlayer(dt);
+
+    //
 
     this.renderPipeline.render(dt);
   };
